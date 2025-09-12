@@ -1,62 +1,157 @@
+%loading and storing as a 3d array
 load("Indian_pines_corrected.mat");
 cube=double(indian_pines_corrected);
 [H,W,B]=size(cube);
-ncube=cube;
-for b=1:B
-    band=cube(:,:,b);
-    lo=prctile(band(:),1);
-    hi=prctile(band(:),99);
-    ncube(:,:,b)=min(max((band-lo)/max(hi-lo+eps),0),1);
+wavelengths=linspace(400,2500,B);
+hcube=imhypercube(cube,wavelengths);
+%using zscaling
+%removal of extreme noise normalizing to 0 and 1
+%ncube=cube;
+%for b=1:B
+    %band=cube(:,:,b);
+    %mu=mean(band(:));
+    %std_dev=std(band(:));
+    %ncube(:,:,b)=(band-mu)/(std_dev+eps);
+%end
+
+%perceentile scaling
+%ncube = cube;
+%for b = 1:B
+    %band = cube(:,:,b);
+    %lo = prctile(band(:), 1);
+    %hi = prctile(band(:), 99);
+    %ncube(:,:,b) = min(max((band - lo) / (hi - lo + eps), 0), 1);
+%end
+
+ncube = cube; 
+for b = 1:B
+    band = cube(:,:,b);
+    lo = min(band(:));
+    hi = max(band(:));
+    ncube(:,:,b) = (band - lo) / (hi - lo + eps);  % scale to [0,1]
 end
 
 wavelengths=linspace(400,2500,B);
 nearestband=@(target)find(abs(wavelengths-target)==min(abs(wavelengths-target)),1);
-i470=nearestband(470);
-i550=nearestband(550);
-i670=nearestband(670);
-i740=nearestband(740);
-i860=nearestband(860);
-i1240=nearestband(1240);
-i1600=nearestband(1600);
 
-r470=cube(:,:,i470);
-r550=cube(:,:,i550);
-r670=cube(:,:,i670);
-r740=cube(:,:,i740);
-r860=cube(:,:,i860);
-r1240=cube(:,:,i1240);
-r1600=cube(:,:,i1600);
+%finding band equivilant index value for wavelength
+idx_red=nearestband(650); 
+idx_rededge=nearestband(720);
+idx_NIR=nearestband(850);
+idx_SWIR=nearestband(1250);
 
-ndvi=(r860-r670)./(r860+r670+eps);
-ndwi=(r860-r1240)./(r860+r1240+eps);
-cire=(r860./(r740+eps))-1;
-msi=(r1600./(r860+eps));
-psri=(r670-r550)./(r740+eps);
-L=0.5;
-savi=((r860-r550)./(r860+r670+eps));
+red_band=ncube(:,:,idx_red);
+rededge_band=ncube(:,:,idx_rededge);
+NIR_band=ncube(:,:,idx_NIR);
+SWIR_band=ncube(:,:,idx_SWIR);
 
+
+NDVI=(NIR_band-red_band)./(NIR_band+red_band);
+
+%{
+L = zeros(size(NDVI));
+L(NDVI >= 0.6) = 1;              % Dense
+L(NDVI >= 0.4 & NDVI < 0.6) = 2;  % Moderate
+L(NDVI >= 0.2 & NDVI < 0.4) = 3;  % Sparse
+L(NDVI < 0.2) = 4;               % No vegetation
+rgbimg=colorize(hcube,Method="rgb",ContrastStretching=true);
+cmap = [0 1 0; 0 0 1; 1 1 0; 1 0 0];
 figure;
-subplot(2,3,1);
-imagesc(ndvi); axis image; colorbar;
-title('NDVI (NIR - Red / NIR + Red)'); colormap(gca, jet);
+imagesc(L);
+colormap(cmap);           
+colorbar('Ticks',1:4, 'TickLabels',{'Dense','Moderate','Sparse','None'});
+title('Vegetation Classification (NDVI Thresholds)');
+axis image;
+%}
 
-subplot(2,3,2);
-imagesc(ndwi); axis image; colorbar;
-title('NDWI (NIR - SWIR / NIR + SWIR)'); colormap(gca, jet);
+NDWI = (NIR_band - SWIR_band) ./ (NIR_band + SWIR_band + eps);
 
-subplot(2,3,3);
-imagesc(cire); axis image; colorbar;
-title('CIRE (NIR / RedEdge - 1)'); colormap(gca, jet);
+%{
+figure;
+imagesc(NDWI);
+colormap(winter);        % nice blue gradient
+colorbar;
+title('NDWI Map');
+axis image;
+clim([-1 1])
+%}
 
-subplot(2,3,4);
-imagesc(msi); axis image; colorbar;
-title('MSI (SWIR / NIR)'); colormap(gca, jet);
+CIRE=((NIR_band)./(rededge_band+eps))-1;
 
-subplot(2,3,5);
-imagesc(psri); axis image; colorbar;
-title('PSRI ((Red - Green) / RedEdge)'); colormap(gca, jet);
+%{
+figure;
+imagesc(CIRE);
+colormap("autumn");
+title("CIRE MAP");
+axis image;
+clim([0 5])
+%}
 
-subplot(2,3,6);
-imagesc(savi); axis image; colorbar;
-title('SAVI ((NIR-Red)/(NIR+Red+L))'); colormap(gca, jet);
+labels = (NDVI > 0.3 & NDWI > -0.1 & CIRE > 1.5);
+
+%{
+img=double(labels);
+figure;
+imagesc(labels);
+cmap=[1 0 0 ; 0 1 0];
+colormap(cmap);
+%}
+
+y=categorical(labels);
+
+
+patch_size=11;
+pad=floor(patch_size/2);
+padded_cube=padarray(cube,[pad pad 0],'symmetric');
+num_pixels=H*W;
+xpatch=zeros(patch_size,patch_size,B,num_pixels);
+ypatch=zeros(num_pixels,1);
+
+idx=1;
+for i=1:H
+    for j=1:W
+        patch=padded_cube(i:i+patch_size-1,j:j+patch_size-1,:);
+        xpatch(:,:,:,idx)=patch;
+        ypatch(idx)=labels(i,j);
+        idx=idx+1;
+    end
+end
+ypatch=categorical(ypatch);
+
+xseq=cell(num_pixels,1);
+for n=1:num_pixels
+    seq=squeeze(xpatch(:,:,:,n));
+    seq=reshape(seq,[],B);
+    xseq{n}=seq;
+end
+
+cv=cvpartition(ypatch,'HoldOut',0.2);
+xtrain=xseq(training(cv));
+ytrain=ypatch(training(cv));
+xtest=xseq(test(cv));
+ytest=ypatch(test(cv));
+
+inputsize=patch_size^2;
+numclasses=2;
+
+layers=[
+    sequenceInputLayer(inputsize);
+    fullyConnectedLayer(64);
+    reluLayer
+    lstmLayer(64,'OutputMode','last');
+    fullyConnectedLayer(numclasses);
+    softmaxLayer
+    classificationLayer;
+];
+options = trainingOptions('adam', ...
+    'MaxEpochs',5, ...
+    'MiniBatchSize',128, ...
+    'Plots','training-progress', ...
+    'Verbose',false, ...
+    'ValidationData',{xtest,ytest});
+net=trainNetwork(xtrain,ytrain,layers,options);
+
+ypred=classify(net,xtest);
+accuracy=mean(ypred==ytest);
+disp('Test accuracy='+accuracy)
 
