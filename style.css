@@ -1,0 +1,111 @@
+
+ body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to right, #4CAF50, #009D6B);
+  color: white;
+  text-align: center;
+}
+
+/* Logo container */
+.logo-container {
+  text-align: center;
+  background: linear-gradient(to right, #4CAF50, #009D6B);
+  width: 100%;
+  padding: 15px 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container img {
+  width: 140px;
+  height: auto;
+}
+ 
+/* Header */
+header {
+  background-color: #00717D;
+  padding: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Main container */
+.container {
+  max-width: 900px;
+  margin: 30px auto;
+  background: white;
+  color: #2F4858;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.mode-select {
+  margin: 20px 0;
+}
+
+/* Button */
+.btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background-color: #009D6B;
+}
+
+/* Status text */
+.status {
+  font-size: 18px;
+  margin: 20px 0;
+  font-weight: bold;
+}
+
+/* Grid layout */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* Card/box */
+.box {
+  background-color: #E4F4F4;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  min-height: 200px;
+}
+
+.box h3 {
+  color: #00717D;
+}
+
+/* Demo image */
+.demo-img {
+  width: 100%;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+/* Footer */
+footer {
+  background-color: #2F4858;
+  color: white;
+  padding: 15px;
+  margin-top: 40px;
+  font-size: 14px;
+}
+
+/* Hide file input */
+input[type="file"] {
+  display: none;
+}
