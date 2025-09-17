@@ -1,0 +1,117 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to right, #4caf50, #009d6b);
+  color: white;
+  text-align: center;
+}
+
+/* Logo container */
+.logo-container {
+  text-align: center;
+  background: linear-gradient(to right, #4caf50, #009d6b);
+  width: 100%;
+  padding: 15px 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container img {
+  width: 140px;
+  height: auto;
+}
+
+/* Header */
+header {
+  background-color: #00717d;
+  padding: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Main container */
+.container {
+  max-width: 900px;
+  margin: 30px auto;
+  background: white;
+  color: #2f4858;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* --- NEW: Styles for the two-button layout --- */
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+/* Main button style */
+.btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background-color: #009d6b;
+}
+
+/* --- NEW: Style for the secondary button --- */
+.btn-secondary {
+  background-color: #5a7d7c;
+}
+.btn-secondary:hover {
+  background-color: #2f4858;
+}
+
+/* Status text */
+.status {
+  font-size: 18px;
+  margin: 20px 0;
+  font-weight: bold;
+}
+
+/* Result container for the three boxes */
+.result-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* Card/box style */
+.box {
+  background-color: #e4f4f4;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  min-height: 200px;
+}
+
+.box h3 {
+  color: #00717d;
+}
+
+/* Demo image */
+.demo-img {
+  width: 100%;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+/* Footer */
+footer {
+  background-color: #2f4858;
+  color: white;
+  padding: 15px;
+  margin-top: 40px;
+  font-size: 14px;
+}
